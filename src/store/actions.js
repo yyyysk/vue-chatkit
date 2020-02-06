@@ -17,8 +17,25 @@ export default {
         username: currentUser.disconnect,
         name: currentUser.name
       });
-      commit('setReconnect', false);
-      console.log(state.user);
+      // ユーザのチャットルームをストアに保存する
+      const rooms = currentUser.rooms.map(room => ({
+        id: room.id,
+        name: room.name
+      }));
+      commit('setRooms', rooms);
+
+      // ユーザをルームに登録する
+      const activeRoom = state.activeRoom || rooms[0];
+      commit('setActiveRoom', {
+        id: activeRoom.id,
+        name: activeRoom.name
+      });
+      await chatkit.subscribeToRoom(activeRoom.id);
+
+      // commit('setReconnect', false);
+      // console.log(state.user);
+
+      return true;
     } catch (error) {
       handleError(commit, error);
     } finally {
